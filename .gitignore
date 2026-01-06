@@ -1,36 +1,33 @@
-# Spring Boot Build Artifacts
+HELP.md
 target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Log Files
-logs/
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-# Gradle Build Output
-.gradle/
-build/
-
-# IDEA Project Files
-.idea/
-*.iml
+### IntelliJ IDEA ###
+.idea
 *.iws
+*.iml
+*.ipr
 
-# Local Environment Files
-.env
-*.local
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# IntelliJ workspace.xml and .workspace files
-*.xml
-*.workspace
-
-# Maven Output
-target/
-
-# NetBeans Project Files
-nbproject/
-private/
-
-# Other Files
-*.log
-*.DS_Store
-
-# Sensitive Configuration Files
-application.properties
+### VS Code ###
+.vscode/
