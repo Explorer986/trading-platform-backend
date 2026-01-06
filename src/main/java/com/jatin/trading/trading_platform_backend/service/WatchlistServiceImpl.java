@@ -1,15 +1,15 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
 import java.io.IOException;
 import java.util.List;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.stockmarket.stockmarketapi.entity.Watchlist;
-import com.stockmarket.stockmarketapi.exception.InternalServerErrorException;
-import com.stockmarket.stockmarketapi.exception.ResourceAlreadyExistsException;
-import com.stockmarket.stockmarketapi.exception.ResourceNotFoundException;
-import com.stockmarket.stockmarketapi.repository.WatchlistRepository;
+import com.jatin.trading.trading_platform_backend.entity.Watchlist;
+import com.jatin.trading.trading_platform_backend.exception.InternalServerErrorException;
+import com.jatin.trading.trading_platform_backend.exception.ResourceAlreadyExistsException;
+import com.jatin.trading.trading_platform_backend.exception.ResourceNotFoundException;
+import com.jatin.trading.trading_platform_backend.repository.WatchlistRepository;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 

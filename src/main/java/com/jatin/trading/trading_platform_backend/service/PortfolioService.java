@@ -1,7 +1,7 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
 import java.util.List;
-import com.stockmarket.stockmarketapi.entity.Portfolio;
+import com.jatin.trading.trading_platform_backend.entity.Portfolio;
 
 public interface PortfolioService {
   

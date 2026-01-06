@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.DTOs;
+package com.jatin.trading.trading_platform_backend.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;

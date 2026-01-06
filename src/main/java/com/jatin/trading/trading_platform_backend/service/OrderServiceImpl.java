@@ -1,24 +1,26 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import javax.transaction.Transactional;
+
+import com.jatin.trading.trading_platform_backend.service.OrderService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.stockmarket.stockmarketapi.DTOs.OrderSubmitDTO;
-import com.stockmarket.stockmarketapi.entity.Order;
-import com.stockmarket.stockmarketapi.entity.Portfolio;
-import com.stockmarket.stockmarketapi.entity.User;
-import com.stockmarket.stockmarketapi.exception.BadRequestException;
-import com.stockmarket.stockmarketapi.exception.InternalServerErrorException;
-import com.stockmarket.stockmarketapi.exception.OrderNotFilledException;
-import com.stockmarket.stockmarketapi.exception.ResourceNotFoundException;
-import com.stockmarket.stockmarketapi.repository.OrderRepository;
-import com.stockmarket.stockmarketapi.repository.PortfolioRepository;
-import com.stockmarket.stockmarketapi.repository.UserRepository;
+import com.jatin.trading.trading_platform_backend.DTOs.OrderSubmitDTO;
+import com.jatin.trading.trading_platform_backend.entity.Order;
+import com.jatin.trading.trading_platform_backend.entity.Portfolio;
+import com.jatin.trading.trading_platform_backend.entity.User;
+import com.jatin.trading.trading_platform_backend.exception.BadRequestException;
+import com.jatin.trading.trading_platform_backend.exception.InternalServerErrorException;
+import com.jatin.trading.trading_platform_backend.exception.OrderNotFilledException;
+import com.jatin.trading.trading_platform_backend.exception.ResourceNotFoundException;
+import com.jatin.trading.trading_platform_backend.repository.OrderRepository;
+import com.jatin.trading.trading_platform_backend.repository.PortfolioRepository;
+import com.jatin.trading.trading_platform_backend.repository.UserRepository;
 import yahoofinance.Stock;
 import yahoofinance.quotes.stock.StockQuote;
 

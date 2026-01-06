@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Service;
-import com.stockmarket.stockmarketapi.stockmodel.StockWrapper;
+import com.jatin.trading.trading_platform_backend.stockmodel.StockWrapper;
 
 @Service
 public class StockRefreshService {

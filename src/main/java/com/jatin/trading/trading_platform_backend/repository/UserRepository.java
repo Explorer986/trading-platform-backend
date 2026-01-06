@@ -1,8 +1,8 @@
-package com.stockmarket.stockmarketapi.repository;
+package com.jatin.trading.trading_platform_backend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import com.stockmarket.stockmarketapi.entity.User;
+import com.jatin.trading.trading_platform_backend.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 

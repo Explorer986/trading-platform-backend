@@ -1,8 +1,8 @@
-package com.stockmarket.stockmarketapi.repository;
+package com.jatin.trading.trading_platform_backend.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.stockmarket.stockmarketapi.entity.Order;
+import com.jatin.trading.trading_platform_backend.entity.Order;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 

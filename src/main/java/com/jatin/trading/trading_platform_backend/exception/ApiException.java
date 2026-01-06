@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.exception;
+package com.jatin.trading.trading_platform_backend.exception;
 
 import java.time.ZonedDateTime;
 import org.springframework.http.HttpStatus;

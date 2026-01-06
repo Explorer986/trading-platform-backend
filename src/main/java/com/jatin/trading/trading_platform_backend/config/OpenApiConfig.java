@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.config;
+package com.jatin.trading.trading_platform_backend.config;
 
 import java.util.Arrays;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.stockmodel;
+package com.jatin.trading.trading_platform_backend.stockmodel;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

@@ -1,12 +1,12 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
 import java.util.List;
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.stockmarket.stockmarketapi.entity.Portfolio;
-import com.stockmarket.stockmarketapi.exception.ResourceNotFoundException;
-import com.stockmarket.stockmarketapi.repository.PortfolioRepository;
+import com.jatin.trading.trading_platform_backend.entity.Portfolio;
+import com.jatin.trading.trading_platform_backend.exception.ResourceNotFoundException;
+import com.jatin.trading.trading_platform_backend.repository.PortfolioRepository;
 
 @Service
 @Transactional

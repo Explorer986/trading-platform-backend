@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi;
+package com.jatin.trading.trading_platform_backend;
 
 public class Constants {
 

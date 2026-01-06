@@ -1,9 +1,9 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
-import com.stockmarket.stockmarketapi.DTOs.UserAmountDTO;
-import com.stockmarket.stockmarketapi.DTOs.UserLoginDTO;
-import com.stockmarket.stockmarketapi.DTOs.UserRegisterDTO;
-import com.stockmarket.stockmarketapi.entity.User;
+import com.jatin.trading.trading_platform_backend.DTOs.UserAmountDTO;
+import com.jatin.trading.trading_platform_backend.DTOs.UserLoginDTO;
+import com.jatin.trading.trading_platform_backend.DTOs.UserRegisterDTO;
+import com.jatin.trading.trading_platform_backend.entity.User;
 
 public interface UserService {
 

@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.DTOs;
+package com.jatin.trading.trading_platform_backend.DTOs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

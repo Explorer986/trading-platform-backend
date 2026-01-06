@@ -1,20 +1,20 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.stockmarket.stockmarketapi.DTOs.UserAmountDTO;
-import com.stockmarket.stockmarketapi.DTOs.UserLoginDTO;
-import com.stockmarket.stockmarketapi.DTOs.UserRegisterDTO;
-import com.stockmarket.stockmarketapi.entity.User;
-import com.stockmarket.stockmarketapi.exception.AuthException;
-import com.stockmarket.stockmarketapi.exception.BadRequestException;
-import com.stockmarket.stockmarketapi.exception.ResourceAlreadyExistsException;
-import com.stockmarket.stockmarketapi.exception.ResourceNotFoundException;
-import com.stockmarket.stockmarketapi.repository.UserRepository;
+import com.jatin.trading.trading_platform_backend.DTOs.UserAmountDTO;
+import com.jatin.trading.trading_platform_backend.DTOs.UserLoginDTO;
+import com.jatin.trading.trading_platform_backend.DTOs.UserRegisterDTO;
+import com.jatin.trading.trading_platform_backend.entity.User;
+import com.jatin.trading.trading_platform_backend.exception.AuthException;
+import com.jatin.trading.trading_platform_backend.exception.BadRequestException;
+import com.jatin.trading.trading_platform_backend.exception.ResourceAlreadyExistsException;
+import com.jatin.trading.trading_platform_backend.exception.ResourceNotFoundException;
+import com.jatin.trading.trading_platform_backend.repository.UserRepository;
 
 @Service
 @Transactional

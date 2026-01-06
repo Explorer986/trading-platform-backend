@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.controllers;
+package com.jatin.trading.trading_platform_backend.controllers;
 
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.stockmarket.stockmarketapi.service.StockService;
-import com.stockmarket.stockmarketapi.stockmodel.StockData;
+import com.jatin.trading.trading_platform_backend.service.StockService;
+import com.jatin.trading.trading_platform_backend.stockmodel.StockData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,10 +1,10 @@
-package com.stockmarket.stockmarketapi.service;
+package com.jatin.trading.trading_platform_backend.service;
 
 import java.io.IOException;
 import org.springframework.stereotype.Service;
-import com.stockmarket.stockmarketapi.exception.BadRequestException;
-import com.stockmarket.stockmarketapi.stockmodel.StockData;
-import com.stockmarket.stockmarketapi.stockmodel.StockWrapper;
+import com.jatin.trading.trading_platform_backend.exception.BadRequestException;
+import com.jatin.trading.trading_platform_backend.stockmodel.StockData;
+import com.jatin.trading.trading_platform_backend.stockmodel.StockWrapper;
 import lombok.AllArgsConstructor;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;

@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.stockmodel;
+package com.jatin.trading.trading_platform_backend.stockmodel;
 
 import java.math.BigDecimal;
 import io.swagger.v3.oas.annotations.media.Schema;

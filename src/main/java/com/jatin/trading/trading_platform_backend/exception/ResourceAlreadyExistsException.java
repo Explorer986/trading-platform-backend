@@ -1,4 +1,4 @@
-package com.stockmarket.stockmarketapi.exception;
+package com.jatin.trading.trading_platform_backend.exception;
 
 
 public class ResourceAlreadyExistsException extends RuntimeException {

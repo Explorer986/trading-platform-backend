@@ -1,12 +1,7 @@
-package com.stockmarket.stockmarketapi.entity;
+package com.jatin.trading.trading_platform_backend.entity;
 
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @Schema(name = "PortfolioDTO",
     description = "Data Transfer Object of the portfolio which contains all the stocks the user has purchased.")
 public class Portfolio {
