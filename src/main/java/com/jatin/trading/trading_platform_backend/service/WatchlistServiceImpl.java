@@ -43,7 +43,7 @@ public class WatchlistServiceImpl implements WatchlistService {
       }
 
       Watchlist watchlist = new Watchlist();
-      watchlist.setUserId(Long.valueOf(userId));
+      watchlist.setUserId(Integer.valueOf(userId));
       watchlist.setStockName(stock.getName());
       watchlist.setStockTicker(stock.getQuote().getSymbol());
       watchlist.setPrice(stock.getQuote().getPrice().doubleValue());

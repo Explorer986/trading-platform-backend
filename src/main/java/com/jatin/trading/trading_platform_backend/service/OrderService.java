@@ -9,5 +9,6 @@ public interface OrderService {
   List<Order> getAllOrders(int userId);
   Order getOrder(int userId, int orderId);
   Order submitOrder(int userId, OrderSubmitDTO orderSubmitDTO);
-  
+
+  void deleteOrder(Integer userId, Integer orderId);
 }

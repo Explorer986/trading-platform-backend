@@ -153,7 +153,7 @@ public class OrderServiceImpl implements OrderService {
         }
       }
 
-      Order order = new Order((long) userId, orderSubmitDTO.getStockTicker(),
+      Order order = new Order((int) userId, orderSubmitDTO.getStockTicker(),
           orderSubmitDTO.getOrderType(), orderSubmitDTO.getNoOfShares(), orderSubmitDTO.getCost());
       order = orderRepository.save(order);
       User updatedUser = dbUser.get();
@@ -165,7 +165,7 @@ public class OrderServiceImpl implements OrderService {
         if (dbPortfolio == null) {
           // Create a new stock in the portfolio
           dbPortfolio = new Portfolio();
-          dbPortfolio.setUserId(Long.valueOf(userId));
+          dbPortfolio.setUserId(Integer.valueOf(userId));
           dbPortfolio.setStockName(stock.getName());
           dbPortfolio.setStockTicker(stock.getQuote().getSymbol());
           dbPortfolio.setPrice(stock.getQuote().getPrice().doubleValue());
@@ -222,6 +222,14 @@ public class OrderServiceImpl implements OrderService {
     portfolio.setPNLInDollars(updatePNLDollars);
 
     return portfolio;
+  }
+
+  public void deleteOrder(Integer userId, Integer orderId) {
+
+    Order order = orderRepository
+            .findByUserIdAndOrderId(userId, orderId);
+
+    orderRepository.delete(order);
   }
 
 }

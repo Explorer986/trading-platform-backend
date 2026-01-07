@@ -31,7 +31,7 @@ public class Portfolio {
   @NonNull
   @JsonIgnore
   @Column(name = "user_id", nullable = false)
-  private long userId;
+  private int userId;
 
   @Schema(description = "Name of the stocks inside the portfolio of the user.",
       example = "Apple Inc.", required = true)

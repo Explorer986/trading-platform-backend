@@ -12,13 +12,9 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final SecretKey KEY =
-            Keys.hmacShaKeyFor(
-                    "super-secret-key-for-jwt-signing-should-be-very-long"
-                            .getBytes(StandardCharsets.UTF_8)
-            );
+    private static final SecretKey KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(String username) {
+    public static String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())

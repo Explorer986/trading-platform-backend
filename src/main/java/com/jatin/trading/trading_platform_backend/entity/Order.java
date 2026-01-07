@@ -32,7 +32,7 @@ public class Order {
   @NonNull
   @JsonIgnore
   @Column(name = "user_id", nullable = false)
-  private long userId;
+  private int userId;
 
   @Schema(description = "Stock ticker of the stock associated with the order.", example = "AAPL",
       required = true)

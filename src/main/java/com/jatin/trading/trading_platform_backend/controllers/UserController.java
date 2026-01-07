@@ -7,10 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.jatin.trading.trading_platform_backend.Constants;
 import com.jatin.trading.trading_platform_backend.DTOs.UserAccessTokenDTO;
 import com.jatin.trading.trading_platform_backend.DTOs.UserAmountDTO;
@@ -27,10 +24,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
-
+import com.jatin.trading.trading_platform_backend.security.JwtUtil;
 @Tag(name = "User Controller",
                 description = "To sign up for an account and log in with the provided login credentials. Provides endpoint for withdrawing and depositing cash into the created account.")
 @RestController
+@RequestMapping("/auth")
 public class UserController {
 
         @Autowired
@@ -48,25 +46,34 @@ public class UserController {
         @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<UserRegisterDTO> registerUser(
                         @RequestBody UserRegisterDTO userRegisterDTO) {
+                System.out.println("\n\n\n Register user API hit \n\n\n\n");
                 userService.registerUser(userRegisterDTO);
                 return new ResponseEntity<>(userRegisterDTO, HttpStatus.CREATED);
         }
 
         @Operation(summary = "Login user", description = "Authenticates the user. Returns JWT Token for Bearer authentication.")
-        @ApiResponses(value = {
-                @ApiResponse(responseCode = "200", description = "Successful login!", content = @Content(schema = @Schema(implementation = UserAccessTokenDTO.class))),
-                @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content),
-                @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content)
-        })
-        @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<UserAccessTokenDTO> loginUser(
-                        @RequestBody UserLoginDTO userLoginDTO) {
+//        @ApiResponses(value = {
+//                @ApiResponse(responseCode = "200", description = "Successful login!", content = @Content(schema = @Schema(implementation = UserAccessTokenDTO.class))),
+//                @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content),
+//                @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content)
+//        })
+        @PostMapping(value = "/login")
+        public Map<String, String> login(@RequestBody UserLoginDTO userLoginDTO) {
+                System.out.println("\n\n\n login api hit \n\n\n ");
                 User user = userService.validateUser(userLoginDTO);
-                Map<String, String> accessTokenMap = generateJWTToken(user);
-                UserAccessTokenDTO accessToken =
-                                new UserAccessTokenDTO(accessTokenMap.get("accessToken"));
-                return new ResponseEntity<>(accessToken, HttpStatus.OK);
+                String token;
+                token = JwtUtil.generateToken(userLoginDTO.getUsername());
+                System.out.println(token);
+                return Map.of("token", token);
         }
+//        public ResponseEntity<UserAccessTokenDTO> loginUser(
+//                        @RequestBody UserLoginDTO userLoginDTO) {
+//                User user = userService.validateUser(userLoginDTO);
+//                Map<String, String> accessTokenMap = generateJWTToken(user);
+//                UserAccessTokenDTO accessToken =
+//                                new UserAccessTokenDTO(accessTokenMap.get("accessToken"));
+//                return new ResponseEntity<>(accessToken, HttpStatus.OK);
+//        }
 
         @Operation(summary = "Deposit to user account", description = "To load up funds to user's accounts to purchase stocks.")
         @ApiResponses(value = {

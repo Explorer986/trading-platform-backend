@@ -49,9 +49,9 @@ public class UserServiceImpl implements UserService {
         throw new BadRequestException(
             "Invalid password format. Password must contain at least one lowercase and uppercase character, number, and special character.");
 
-      Integer emailCount = userRepository.getCountByEmail(userRegisterDTO.getEmail());
-      if (emailCount >= 1)
-        throw new ResourceAlreadyExistsException("Email already in use.");
+      Integer usernameCount = userRepository.getCountByUsername(userRegisterDTO.getUsername());
+      if (usernameCount >= 1)
+        throw new ResourceAlreadyExistsException("Username already in use.");
 
       User insertUser = new User(userRegisterDTO.getUsername(), userRegisterDTO.getPassword(),
           userRegisterDTO.getEmail(), 1000.0, 1);
@@ -69,20 +69,19 @@ public class UserServiceImpl implements UserService {
   @Override
   public User validateUser(UserLoginDTO userLoginDTO) {
     try {
-      if (userLoginDTO.getEmail() == null || userLoginDTO.getEmail().isBlank()
+      if (userLoginDTO.getUsername() == null || userLoginDTO.getUsername().isBlank()
           || userLoginDTO.getPassword() == null || userLoginDTO.getPassword().isBlank()) {
         throw new BadRequestException("Fill in all fields.");
       }
-      if (userLoginDTO.getPassword().length() < 10 || userLoginDTO.getPassword().length() > 20
-          || userLoginDTO.getEmail().length() > 255) {
-        throw new AuthException("Incorrect email/password. Please try again.");
+      if (userLoginDTO.getPassword().length() < 10 || userLoginDTO.getPassword().length() > 20) {
+        throw new AuthException("Incorrect email/password. Please try again1.");
       }
 
       // Validate User
-      User dbUser = userRepository.findByEmail(userLoginDTO.getEmail());
+      User dbUser = userRepository.findByUsername(userLoginDTO.getUsername());
       BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
       if (!passwordEncoder.matches(userLoginDTO.getPassword(), dbUser.getPassword())) {
-        throw new AuthException("Incorrect email/password. Please try again.");
+        throw new AuthException("Incorrect email/password. Please try 1.");
       }
 
       // Check if account is disabled
@@ -127,5 +126,7 @@ public class UserServiceImpl implements UserService {
         "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-_=+{\\[\\]}\\\\|;:'\",.<>/?`~]).+$");
     return passwordPattern.matcher(password).matches();
   }
+
+
 
 }

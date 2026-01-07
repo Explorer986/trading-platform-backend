@@ -6,12 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.jatin.trading.trading_platform_backend.DTOs.OrderSubmitDTO;
 import com.jatin.trading.trading_platform_backend.entity.Order;
 import com.jatin.trading.trading_platform_backend.service.OrderService;
@@ -55,21 +50,41 @@ public class OrderController {
 
   @Operation(summary = "Submit Order", description = "Submits a order to BUY or SELL a stock.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201",
-          description = "Successfully created an order when the stock is bought or sold.",
-          content = @Content(schema = @Schema(implementation = OrderSubmitDTO.class))),
-      @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content),
-      @ApiResponse(responseCode = "404", description = "NOT FOUND - Order Not Found",
-          content = @Content),
-      @ApiResponse(responseCode = "500",
-          description = "INTERNAL SERVER ERROR - Unable to connect to Yahoo Finance API.",
-          content = @Content)})
+    @ApiResponse(responseCode = "201",
+        description = "Successfully created an order when the stock is bought or sold.",
+        content = @Content(schema = @Schema(implementation = OrderSubmitDTO.class))),
+    @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content),
+    @ApiResponse(responseCode = "404", description = "NOT FOUND - Order Not Found",
+        content = @Content),
+    @ApiResponse(responseCode = "500",
+        description = "INTERNAL SERVER ERROR - Unable to connect to Yahoo Finance API.",
+        content = @Content)})
   @PostMapping(value = "/orders", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Order> submitOrder(HttpServletRequest request,
       @RequestBody OrderSubmitDTO orderSubmitDTO) {
     Integer userId = (Integer) request.getAttribute("userId");
     Order order = orderService.submitOrder(userId, orderSubmitDTO);
     return new ResponseEntity<>(order, HttpStatus.CREATED);
+  }
+  @Operation(
+          summary = "Delete Order",
+          description = "Deletes a specific order beIntegering to the logged-in user."
+  )
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "204", description = "Order deleted successfully"),
+          @ApiResponse(responseCode = "404", description = "Order not found"),
+          @ApiResponse(responseCode = "403", description = "Unauthorized access")
+  })
+  @DeleteMapping(value = "/orders/{orderId}")
+  public ResponseEntity<Void> deleteOrder(
+          HttpServletRequest request,
+          @PathVariable Integer orderId) {
+
+    Integer userId = (Integer) request.getAttribute("userId");
+
+    orderService.deleteOrder(userId, orderId);
+
+    return ResponseEntity.noContent().build();
   }
 
 }

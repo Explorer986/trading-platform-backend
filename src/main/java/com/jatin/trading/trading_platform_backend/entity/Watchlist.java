@@ -31,7 +31,7 @@ public class Watchlist {
       example = "1", required = true)
   @NonNull
   @Column(name = "user_id", nullable = false)
-  private long userId;
+  private int userId;
 
   @Schema(description = "Name of the stocks inside the watchlist of the user.",
       example = "JPMorgan Chase & Co.", required = true)

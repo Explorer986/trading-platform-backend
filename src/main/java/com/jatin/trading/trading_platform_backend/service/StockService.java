@@ -1,44 +1,46 @@
 package com.jatin.trading.trading_platform_backend.service;
 
-import java.io.IOException;
-import org.springframework.stereotype.Service;
 import com.jatin.trading.trading_platform_backend.exception.BadRequestException;
 import com.jatin.trading.trading_platform_backend.stockmodel.StockData;
-import com.jatin.trading.trading_platform_backend.stockmodel.StockWrapper;
-import lombok.AllArgsConstructor;
-import yahoofinance.Stock;
-import yahoofinance.YahooFinance;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-@AllArgsConstructor
+import java.math.BigDecimal;
+import java.util.Map;
+
 @Service
 public class StockService {
 
-  public StockData findStock(final String ticker) throws IOException {
-    try {
-      Stock stock = YahooFinance.get(ticker.trim());
-      StockWrapper stockWrapper = new StockWrapper(stock);
+  @Value("${finnhub.api.key}")
+  private String apiKey;
 
-      if (stock == null) {
-        throw new BadRequestException("Stock ticker does not exist.");
+  private final RestTemplate restTemplate = new RestTemplate();
+
+  public StockData findStock(String ticker) {
+    try {
+      String url =
+              "https://finnhub.io/api/v1/quote?symbol=" + ticker.toUpperCase()
+                      + "&token=" + apiKey;
+
+      Map<String, Object> res =
+              restTemplate.getForObject(url, Map.class);
+
+      if (res == null || (Double) res.get("c") == 0.0) {
+        throw new BadRequestException("Invalid stock ticker");
       }
 
-      StockData stockData = new StockData();
-      stockData.setStockName(stock.getName());
-      stockData.setStockTicker(stockWrapper.getStock().getQuote().getSymbol());
-      stockData.setPreviousDayClose(stockWrapper.getStock().getQuote().getPreviousClose());
-      stockData.setStockPrice(stockWrapper.getStock().getQuote(true).getPrice());
-      stockData.setDayHigh(stockWrapper.getStock().getQuote().getDayHigh());
-      stockData.setDayLow(stockWrapper.getStock().getQuote().getDayLow());
-      stockData.setDayChangeInPercent(stockWrapper.getStock().getQuote().getChangeInPercent());
-      stockData.set_52WeekChangeInPercent(stockWrapper.getStock().getQuote().getChangeFromYearHighInPercent());
-      stockData.set_52WeekHigh(stockWrapper.getStock().getQuote().getYearHigh());
-      stockData.setYearDividendInPercent(stockWrapper.getStock().getDividend().getAnnualYieldPercent());
+      StockData data = new StockData();
+      data.setStockTicker(ticker.toUpperCase());
+      data.setStockPrice(BigDecimal.valueOf((Double) res.get("c")));
+      data.setDayHigh(BigDecimal.valueOf((Double) res.get("h")));
+      data.setDayLow(BigDecimal.valueOf((Double) res.get("l")));
+      data.setPreviousDayClose(BigDecimal.valueOf((Double) res.get("pc")));
 
-      return stockData;
-      // return new StockWrapper(YahooFinance.get(ticker));
-    } catch (IOException e) {
-      throw new IOException("Failed to connect to Yahoo Finance API");
+      return data;
+
+    } catch (Exception e) {
+      throw new RuntimeException("Stock service unavailable");
     }
   }
-
 }

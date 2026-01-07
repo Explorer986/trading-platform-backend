@@ -20,4 +20,9 @@ public class UserLoginDTO {
             required = true, name = "password", type = "String")
     private String password;
 
+    @Schema(description = "The user's email address used for authentication",
+            example = "leonlow", required = false, name = "email", type = "String",
+            format = "email")
+    private String username;
+
 }
