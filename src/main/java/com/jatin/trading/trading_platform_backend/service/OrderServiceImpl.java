@@ -1,235 +1,205 @@
 package com.jatin.trading.trading_platform_backend.service;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-import com.jatin.trading.trading_platform_backend.service.OrderService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.jatin.trading.trading_platform_backend.DTOs.OrderSubmitDTO;
 import com.jatin.trading.trading_platform_backend.entity.Order;
 import com.jatin.trading.trading_platform_backend.entity.Portfolio;
 import com.jatin.trading.trading_platform_backend.entity.User;
 import com.jatin.trading.trading_platform_backend.exception.BadRequestException;
-import com.jatin.trading.trading_platform_backend.exception.InternalServerErrorException;
 import com.jatin.trading.trading_platform_backend.exception.OrderNotFilledException;
 import com.jatin.trading.trading_platform_backend.exception.ResourceNotFoundException;
 import com.jatin.trading.trading_platform_backend.repository.OrderRepository;
 import com.jatin.trading.trading_platform_backend.repository.PortfolioRepository;
 import com.jatin.trading.trading_platform_backend.repository.UserRepository;
-import yahoofinance.Stock;
-import yahoofinance.quotes.stock.StockQuote;
+import com.jatin.trading.trading_platform_backend.stockmodel.StockData;
 
 @Service
 @Transactional
 public class OrderServiceImpl implements OrderService {
 
   @Autowired
-  OrderRepository orderRepository;
+  private OrderRepository orderRepository;
 
   @Autowired
-  PortfolioRepository portfolioRepository;
+  private PortfolioRepository portfolioRepository;
 
   @Autowired
-  UserRepository userRepository;
+  private UserRepository userRepository;
+
+  @Autowired
+  private StockService stockService;
 
   enum ORDER_TYPE {
     BUY, SELL
   }
 
+  // ✅ DO NOT throw exception for empty list
   @Override
   public List<Order> getAllOrders(int userId) {
-    List<Order> orders = orderRepository.findAllByUserId(Long.valueOf(userId));
-    if (orders.isEmpty()) {
-      throw new ResourceNotFoundException("No orders were found.");
-    }
-    return orders;
+    return orderRepository.findAllByUserId(Long.valueOf(userId));
   }
 
   @Override
   public Order getOrder(int userId, int orderId) {
     Order order =
-        orderRepository.findByUserIdAndOrderId(Long.valueOf(userId), Long.valueOf(orderId));
+            orderRepository.findByUserIdAndOrderId(
+                    Long.valueOf(userId), Long.valueOf(orderId));
+
     if (order == null) {
-      throw new ResourceNotFoundException("No order was found.");
+      throw new ResourceNotFoundException("Order not found");
     }
     return order;
   }
 
   @Override
-  public Order submitOrder(int userId, OrderSubmitDTO orderSubmitDTO) {
-    try {
-      // Trim Fields
-      orderSubmitDTO.setOrderType(orderSubmitDTO.getOrderType().trim());
+  public Order submitOrder(int userId, OrderSubmitDTO dto) {
 
-      if (orderSubmitDTO.getStockTicker().isBlank() || orderSubmitDTO.getOrderType().isBlank()) {
-        throw new BadRequestException("Fill in all fields.");
-      }
-      if (orderSubmitDTO.getStockTicker().length() > 20) {
-        throw new BadRequestException("Stock Ticker has a maximum of 20 characters.");
-      }
-      if (orderSubmitDTO.getOrderType().length() > 4) {
-        throw new BadRequestException("Order Type has a maximum of 4 characters.");
-      }
-
-      ORDER_TYPE type = ORDER_TYPE.valueOf(orderSubmitDTO.getOrderType().toUpperCase());
-      if (orderSubmitDTO.getNoOfShares() < 0) {
-        throw new BadRequestException("Number of shares cannot be negative.");
-      }
-      if (orderSubmitDTO.getCost() < 0) {
-        throw new BadRequestException("Price cannot be negative.");
-      }
-
-      // Retrieve user's current portfolio details
-      Portfolio dbPortfolio = portfolioRepository.findByUserIdAndStockTicker(Long.valueOf(userId),
-          orderSubmitDTO.getStockTicker().trim());
-      if (dbPortfolio == null && type == ORDER_TYPE.SELL) {
-        throw new ResourceNotFoundException(
-            "Unable to sell stock as it does not exist in user's portfolio.");
-      }
-      if (type == ORDER_TYPE.SELL) {
-        if (orderSubmitDTO.getNoOfShares() > dbPortfolio.getNoOfShares()) {
-          throw new OrderNotFilledException("Insufficient no. of shares.");
-        }
-      }
-
-      // Check if price is between the market's high and low within the day.
-      Stock stock = new Stock(orderSubmitDTO.getStockTicker());
-      StockQuote stockQuote = stock.getQuote(true);
-      BigDecimal orderPrice = new BigDecimal(orderSubmitDTO.getCost());
-
-      // Check if user's account has sufficient funds
-      Optional<User> dbUser = userRepository.findById(Long.valueOf(userId));
-      if (!dbUser.isPresent()) {
-        throw new ResourceNotFoundException("User not found.");
-      }
-      Double dbBalance = dbUser.map(u -> u.getBalance())
-          .orElseThrow(() -> new BadRequestException("User not found."));
-
-      // Check if user has sufficient funds to purchase stocks and specified number of
-      // shares &
-      // price
-      Double cost = orderSubmitDTO.getCost() * orderSubmitDTO.getNoOfShares();
-      if (dbBalance < cost && type == ORDER_TYPE.BUY) {
-        throw new OrderNotFilledException(
-            "Balance is insufficient to cover the total cost of stocks.");
-      }
-
-      // Specified price is less than the intra-day low
-      if (orderPrice.compareTo(stockQuote.getDayLow()) < 0) {
-        if (type == ORDER_TYPE.BUY) {
-          throw new OrderNotFilledException(
-              "Order not filled as price is less than lowest bid price on " + LocalDateTime.now());
-        } else if (type == ORDER_TYPE.SELL) {
-          orderSubmitDTO.setCost(stockQuote.getDayLow().doubleValue());
-          dbBalance =
-              dbBalance + (orderSubmitDTO.getNoOfShares() * stockQuote.getDayLow().doubleValue());
-        }
-      }
-
-      // Specified price is more than the intra-day high
-      if (orderPrice.compareTo(stockQuote.getDayHigh()) > 0) {
-        if (type == ORDER_TYPE.BUY) {
-          orderSubmitDTO.setCost(stockQuote.getDayHigh().doubleValue());
-          dbBalance =
-              dbBalance - (orderSubmitDTO.getNoOfShares() * stockQuote.getDayHigh().doubleValue());
-        } else if (type == ORDER_TYPE.SELL) {
-          throw new OrderNotFilledException(
-              "Order not filled as price is more than highest ask price on " + LocalDateTime.now());
-        }
-      }
-
-      // Specified price is within the intra-day price
-      if (orderPrice.compareTo(stockQuote.getDayLow()) >= 0
-          && orderPrice.compareTo(stockQuote.getDayHigh()) <= 0) {
-        if (type == ORDER_TYPE.BUY) {
-          dbBalance = dbBalance - cost;
-        } else if (type == ORDER_TYPE.SELL) {
-          dbBalance = dbBalance + cost;
-        }
-      }
-
-      Order order = new Order((int) userId, orderSubmitDTO.getStockTicker(),
-          orderSubmitDTO.getOrderType(), orderSubmitDTO.getNoOfShares(), orderSubmitDTO.getCost());
-      order = orderRepository.save(order);
-      User updatedUser = dbUser.get();
-      updatedUser.setBalance(dbBalance);
-      userRepository.save(updatedUser);
-
-      // Create or update user's portfolio (BUY)
-      if (type == ORDER_TYPE.BUY) {
-        if (dbPortfolio == null) {
-          // Create a new stock in the portfolio
-          dbPortfolio = new Portfolio();
-          dbPortfolio.setUserId(Integer.valueOf(userId));
-          dbPortfolio.setStockName(stock.getName());
-          dbPortfolio.setStockTicker(stock.getQuote().getSymbol());
-          dbPortfolio.setPrice(stock.getQuote().getPrice().doubleValue());
-          dbPortfolio.setNoOfShares(order.getNoOfShares());
-          dbPortfolio.setCost(order.getCost());
-          dbPortfolio = calculateStockPortfolioData(dbPortfolio, order);
-          portfolioRepository.save(dbPortfolio);
-        } else {
-          dbPortfolio.setPrice(stock.getQuote().getPrice().doubleValue());
-          dbPortfolio.setNoOfShares(dbPortfolio.getNoOfShares() + order.getNoOfShares());
-          dbPortfolio = calculateStockPortfolioData(dbPortfolio, order);
-          portfolioRepository.save(dbPortfolio);
-        }
-      }
-
-      // Update user's portfolio (SELL)
-      if (type == ORDER_TYPE.SELL) {
-        int noOfSharesLeft = dbPortfolio.getNoOfShares() - order.getNoOfShares();
-        if (noOfSharesLeft == 0) {
-          portfolioRepository.delete(dbPortfolio);
-        } else {
-          dbPortfolio.setPrice(stock.getQuote().getPrice().doubleValue());
-          dbPortfolio.setNoOfShares(dbPortfolio.getNoOfShares() - order.getNoOfShares());
-          dbPortfolio = calculateStockPortfolioData(dbPortfolio, order);
-          portfolioRepository.save(dbPortfolio);
-        }
-      }
-
-      return order;
-    } catch (IOException e) {
-      throw new InternalServerErrorException("Error connecting with Yahoo Finance API");
-    } catch (NullPointerException e) {
-      throw new NullPointerException("NullPointerException: " + e.getMessage());
-    } catch (IllegalArgumentException e) {
-      throw new BadRequestException("Order Type must be BUY or SELL.");
+    // 🔹 Normalize input
+    if (dto.getOrderType() == null || dto.getStockTicker() == null) {
+      throw new BadRequestException("Invalid input");
     }
+
+    dto.setOrderType(dto.getOrderType().trim().toUpperCase());
+    dto.setStockTicker(dto.getStockTicker().trim().toUpperCase());
+
+    if (dto.getStockTicker().isBlank() || dto.getOrderType().isBlank()) {
+      throw new BadRequestException("Fill all fields");
+    }
+
+    ORDER_TYPE type;
+    try {
+      type = ORDER_TYPE.valueOf(dto.getOrderType());
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException("Order type must be BUY or SELL");
+    }
+
+    if (dto.getNoOfShares() <= 0) {
+      throw new BadRequestException("Shares must be positive");
+    }
+
+    // 🔹 Market price from Finnhub
+    StockData stockData = stockService.findStock(dto.getStockTicker());
+    double marketPrice = stockData.getStockPrice().doubleValue();
+    double totalCost = marketPrice * dto.getNoOfShares();
+
+    // 🔹 Fetch user
+    User user = userRepository.findById(Long.valueOf(userId))
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    double balance = user.getBalance();
+
+    // 🔹 Fetch portfolio if exists
+    Portfolio portfolio =
+            portfolioRepository.findByUserIdAndStockTicker(
+                    Long.valueOf(userId), dto.getStockTicker());
+
+    // 🔴 SELL validations
+    if (type == ORDER_TYPE.SELL) {
+      if (portfolio == null) {
+        throw new OrderNotFilledException("Stock not present in portfolio");
+      }
+      if (dto.getNoOfShares() > portfolio.getNoOfShares()) {
+        throw new OrderNotFilledException("Insufficient shares to sell");
+      }
+    }
+
+    // 🔴 BUY balance check
+    if (type == ORDER_TYPE.BUY && balance < totalCost) {
+      throw new OrderNotFilledException("Insufficient balance");
+    }
+
+    // 💰 Update balance
+    if (type == ORDER_TYPE.BUY) {
+      balance -= totalCost;
+    } else {
+      balance += totalCost;
+    }
+
+    // 💾 Save order
+    Order order = new Order(
+            userId,
+            dto.getStockTicker(),
+            dto.getOrderType(),
+            dto.getNoOfShares(),
+            marketPrice
+    );
+    orderRepository.save(order);
+
+    // 💾 Update user balance
+    user.setBalance(balance);
+    userRepository.save(user);
+
+    // 📦 Portfolio handling
+    if (type == ORDER_TYPE.BUY) {
+
+      if (portfolio == null) {
+        String companyName = stockService.getCompanyName(dto.getStockTicker());
+
+        portfolio = new Portfolio();
+        portfolio.setUserId(userId);
+        portfolio.setStockTicker(dto.getStockTicker());
+        portfolio.setStockName(companyName);
+        portfolio.setNoOfShares(dto.getNoOfShares());
+        portfolio.setPrice(marketPrice);
+        portfolio.setCost(marketPrice);
+      } else {
+        int totalShares =
+                portfolio.getNoOfShares() + dto.getNoOfShares();
+
+        double avgCost =
+                ((portfolio.getCost() * portfolio.getNoOfShares()) + totalCost)
+                        / totalShares;
+
+        portfolio.setNoOfShares(totalShares);
+        portfolio.setCost(avgCost);
+        portfolio.setPrice(marketPrice);
+      }
+
+      updatePNL(portfolio);
+      portfolioRepository.save(portfolio);
+    }
+
+    if (type == ORDER_TYPE.SELL) {
+      int remainingShares =
+              portfolio.getNoOfShares() - dto.getNoOfShares();
+
+      if (remainingShares == 0) {
+        portfolioRepository.delete(portfolio);
+      } else {
+        portfolio.setNoOfShares(remainingShares);
+        portfolio.setPrice(marketPrice);
+        updatePNL(portfolio);
+        portfolioRepository.save(portfolio);
+      }
+    }
+
+    return order;
   }
 
-  private Portfolio calculateStockPortfolioData(Portfolio portfolio, Order order) {
-    // Update Cost of stock in portfolio
-    Double marketValueCurrentStocks = portfolio.getNoOfShares() * portfolio.getCost();
-    Double marketValueUpdatedStocks = order.getNoOfShares() * order.getCost();
-    int totalNoOfShares = portfolio.getNoOfShares() + order.getNoOfShares();
-    Double updatedCost = (marketValueCurrentStocks + marketValueUpdatedStocks) / totalNoOfShares;
-    portfolio.setCost(updatedCost);
+  private void updatePNL(Portfolio p) {
+    double pnlPercent =
+            ((p.getPrice() - p.getCost()) / p.getCost()) * 100;
+    double pnlAmount =
+            (p.getPrice() - p.getCost()) * p.getNoOfShares();
 
-    // Update PNL in %
-    Double cost = portfolio.getCost();
-    Double price = portfolio.getPrice();
-    Double updatedPNLPercentage = ((price - cost) / cost) * 100;
-    portfolio.setPNLInPercentage(updatedPNLPercentage);
-
-    Double updatePNLDollars = (price - cost) * portfolio.getNoOfShares();
-    portfolio.setPNLInDollars(updatePNLDollars);
-
-    return portfolio;
+    p.setPNLInPercentage(pnlPercent);
+    p.setPNLInDollars(pnlAmount);
   }
 
+  @Override
   public void deleteOrder(Integer userId, Integer orderId) {
+    Order order =
+            orderRepository.findByUserIdAndOrderId(
+                    Long.valueOf(userId), Long.valueOf(orderId));
 
-    Order order = orderRepository
-            .findByUserIdAndOrderId(userId, orderId);
-
+    if (order == null) {
+      throw new ResourceNotFoundException("Order not found");
+    }
     orderRepository.delete(order);
   }
-
 }

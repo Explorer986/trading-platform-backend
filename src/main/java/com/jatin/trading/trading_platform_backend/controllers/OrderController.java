@@ -63,6 +63,7 @@ public class OrderController {
   public ResponseEntity<Order> submitOrder(HttpServletRequest request,
       @RequestBody OrderSubmitDTO orderSubmitDTO) {
     Integer userId = (Integer) request.getAttribute("userId");
+    System.out.println("\n\n\n Order submit API hit \n\n\n");
     Order order = orderService.submitOrder(userId, orderSubmitDTO);
     return new ResponseEntity<>(order, HttpStatus.CREATED);
   }
