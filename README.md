@@ -53,7 +53,3 @@ The backend is deployed on **Render** and uses **PostgreSQL** as the primary dat
 - 🧪 Swagger API documentation
 - 🚀 Production deployment on Render
 
----
-
-## 📂 Project Structure
-
